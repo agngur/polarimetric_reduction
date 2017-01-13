@@ -14,6 +14,7 @@ import os
 import alipy
 import ccdproc
 
+
 #im_dir = 'C:/Users/Agnieszka/Documents/UP/Praca_lic/MARAT/2016-12-21'
 def create_MasBias(im_dir):
  
@@ -127,6 +128,8 @@ def align_images(images, ref_im_num=0, save_dir=None, overwrite=True):
         if id.ok == True:
             alipy.align.affineremap(id.ukn.filepath, id.trans, shape=outputshape, makepng=False, overwrite=True)
  
+
+
 #create_MasDark(im_dir, 60)
 #create_MasDark(im_dir, 5)        
 #create_MasFlat(im_dir, 5, '!MDark5.fit')  
