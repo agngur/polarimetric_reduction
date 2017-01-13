@@ -39,8 +39,8 @@ def create_im_list(main_dir, start_date, end_date, ext):
     return container
 
 
-def select_exp(pack, exp, files_ext):
-    express = ''.join(['-', str(exp), files_ext])
+def select_exp(pack, exp, files_ext, prefix):
+    express = ''.join([prefix, str(exp), files_ext])
 
     return list((filter(lambda im: express in im, pack)))
 
@@ -50,7 +50,7 @@ def select_filter(pack, fil):
     return list(filter(lambda im: fil in im, pack))
 
 
-def create_coo_boxes(pack, radius, unit, method='name'):
+def create_coo_boxes(pack, radius=4, unit='deg' , method='name'):
 
     images_fields = []
     grouped_fields = []
@@ -123,7 +123,7 @@ def prepare_stack(main_dir, save_dir, start_date, end_date, files_ext='_red.fit'
     
     for pack_date, pack in container:
         for exp in exps:
-            selected_exp = select_exp(pack, exp, files_ext) 
+            selected_exp = select_exp(pack, exp, files_ext, prefix='-') 
             logging.info('Selected {:d} images with exp {}'.format(len(selected_exp), exp))
             if selected_exp:
                 coo_boxes = create_coo_boxes(selected_exp, radius, unit, method='name')
