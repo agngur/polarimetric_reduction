@@ -135,6 +135,7 @@ def prepare_stack(main_dir, save_dir, start_date, end_date, files_ext='_red.fit'
                         logging.info('Selected {:d} images with filter {}'.format(len(filter_pack), 
                                                                                   filter_name))
                         pim.align_images(filter_pack)
+                        print('tak', filter_pack)
                         logging.info('Pack align done')
                         stacked_image = pim.make_stack(filter_pack, save_dir, exp, filter_name)
                         logging.info('Pack stack done')

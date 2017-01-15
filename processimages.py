@@ -97,8 +97,10 @@ def reduction_data(im_dir, exp_time, dark_exp, m_dark_name,
 def make_stack(images, save_dir, exp, filter_name, ref_im_num=0):
     
     
-    CCD_data_table = list(map(CCDData.read, images))
-    combiner = Combiner(CCD_data_table, dtype='int16')
+    # CCD_data_table = list(map(CCDData.read(unit='adu'), images))
+    CCD_data_table = [CCDData.read(im, unit='adu') for im in images]
+    combiner = Combiner(CCD_data_table, dtype='float32')
+    # combiner.minmax_clipping(max_clip=50000)
     median = combiner.median_combine()
     
     ref_image_name = os.path.basename(images[ref_im_num]).split('_')
@@ -114,7 +116,8 @@ def make_stack(images, save_dir, exp, filter_name, ref_im_num=0):
 def align_images(images, ref_im_num=0, save_dir=None, overwrite=True):
     
     ref_image = images[ref_im_num]
-    identifications = alipy.ident.run(ref_image, images, visu=False, sexkeepcat=False)
+    identifications = alipy.ident.run(ref_image, images, visu=False, sexkeepcat=False,
+                                      sex_command='sextractor')
 
     for id in identifications: 
         if id.ok == True: 

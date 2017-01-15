@@ -5,29 +5,10 @@ import glob
 import numpy as np
 from astropy.table import Table, Column, Row
 from astropy.io import ascii
-
-def create_catalog(im, cat_dir=None, **kwargs):
-    
-    conf_args={'VERBOSE_TYPE': 'QUIET',
-               'BACKPHOTO_TYPE': 'GLOBAL',
-               'DETECT_THRESH': 10.0,
-               'ANALYSIS_THRESH': 10.0,
-               'GAIN': 1.0}
-    
-    if kwargs:
-        for name, value in kwargs.items():
-            try:
-                conf_args[name] = value
-            except KeyError:
-                print('Wrong key for create catalog: {}'.format(name))
-    
-    _, cat_path = pysex.run(im, keepcat=True, rerun=True, catdir='./',
-
-                            sex_command='sextractor',
-                            params=['NUMBER', 'X_IMAGE', 'Y_IMAGE'],
-                            conf_args=conf_args)    
-    print(cat_path) 
-    return cat_path
+import matplotlib.pyplot as plt
+from astropy.visualization import SqrtStretch
+from astropy.visualization.mpl_normalize import ImageNormalize
+from photutils.utils import random_cmap
 
 
 def flux_measure(im, im_ref, **kwargs):
@@ -38,7 +19,7 @@ def flux_measure(im, im_ref, **kwargs):
                'ANALYSIS_THRESH': 100.0,
                'GAIN': 1.0,
                'CLEAN': 'Y',
-               'SATUR_LEVEL': '5000.0',
+               'SATUR_LEVEL': '60000.0',
                'ASSOC_DATA': '1,2,3',
                'ASSOC_TYPE': 'NEAREST',
                'ASSOCSELEC_TYPE': 'MATCHED'}
@@ -58,7 +39,11 @@ def flux_measure(im, im_ref, **kwargs):
     return cat
 
 
-def save_PD_catalog(coo_cats, im_ref):
+def make_plots(im_ref, table):
+    
+
+
+def save_PD_catalog(coo_cats, im_ref, visu=True):
     
     Q = (coo_cats[1]['FLUX_BEST']-coo_cats[0]['FLUX_BEST']) / \
             (coo_cats[1]['FLUX_BEST']+coo_cats[0]['FLUX_BEST'])
@@ -66,13 +51,18 @@ def save_PD_catalog(coo_cats, im_ref):
             (coo_cats[3]['FLUX_BEST']+coo_cats[2]['FLUX_BEST'])
     PD = np.sqrt(Q**2 + U**2) * 100
     
-    table = Table(data=[coo_cats[0]['X_IMAGE'], coo_cats[0]['Y_IMAGE'], Q, U, PD],
+    table = Table(data=[coo_cats[0]['X_IMAGE'],
+                        coo_cats[0]['Y_IMAGE'],
+                        Q, U, PD],
                   names=['X_IMAGE', 'Y_IMAGE', 'Q', 'U', 'PD'])
     
     table.sort('PD')
     table_name = im_ref.replace('P1_', '')
     table_name = table_name.replace('.fit', '.cat')
     ascii.write(table, table_name, overwrite=True)
+    
+    if visu:
+        make_plots(im_ref, table)
 
 
 def make_photometry(work_dir, files_ext='*.fit', ext='.fit',
@@ -100,4 +90,4 @@ def make_photometry(work_dir, files_ext='*.fit', ext='.fit',
                     cat = flux_measure(im, im_ref)
                     coo_cats.append(cat)
 
-                save_PD_catalog(coo_cats, im_ref) 
+                save_PD_catalog(coo_cats, im_ref, visu=True) 
