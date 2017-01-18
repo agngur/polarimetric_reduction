@@ -1,5 +1,5 @@
 # -*- coding: utf-8 -*-
-#! usr/bin/python
+#!/usr/bin/python
 """
 Created on Fri Jan  6 21:03:39 2017
 @author: Agnieszka & Michal
@@ -15,7 +15,7 @@ import alipy
 import ccdproc
 
 
-#im_dir = 'C:/Users/Agnieszka/Documents/UP/Praca_lic/MARAT/2016-12-21'
+#im_dir = 'C:(...)'
 def create_MasBias(im_dir):
  
     CCD_data_table = []
@@ -28,10 +28,10 @@ def create_MasBias(im_dir):
     combiner = Combiner(CCD_data_table, dtype='int16')
     median = combiner.median_combine()
 
-    CCDData.write(median, os.path.join(im_dir, '!MBias.fit'),  hdu_mask=None, hdu_uncertainty=None, clobber=True)
+    CCDData.write(median, os.path.join(im_dir, 'MBias.fit'),  hdu_mask=None, hdu_uncertainty=None, clobber=True)
      
 
-def create_MasDark(im_dir, dark_exp, m_bias_name='!MBias.fit'):
+def create_MasDark(im_dir, dark_exp, m_bias_name='MBias.fit'):
     
     m_bias =  CCDData.read(m_bias_name)
     CCD_data_table = []
@@ -45,11 +45,11 @@ def create_MasDark(im_dir, dark_exp, m_bias_name='!MBias.fit'):
     combiner = Combiner(CCD_data_table, dtype='int16')
     median = combiner.median_combine()
     
-    CCDData.write(median, os.path.join(im_dir, '!MDark'+str(dark_exp)+'.fit'), hdu_mask=None, 
+    CCDData.write(median, os.path.join(im_dir, 'MDark'+str(dark_exp)+'.fit'), hdu_mask=None, 
                   hdu_uncertainty=None, clobber=True)
 
 
-def create_MasFlat(im_dir, dark_exp, m_dark_name, m_bias_name='!MBias.fit'):
+def create_MasFlat(im_dir, dark_exp, m_dark_name, m_bias_name='MBias.fit'):
     
     m_bias =  CCDData.read(m_bias_name, unit='adu')
     m_dark =  CCDData.read(m_dark_name, unit='adu')
@@ -68,11 +68,11 @@ def create_MasFlat(im_dir, dark_exp, m_dark_name, m_bias_name='!MBias.fit'):
     combiner = Combiner(CCD_data_table, dtype='int16')
     median = combiner.median_combine()
     
-    CCDData.write(median, os.path.join(im_dir, '!MFlat.fit'), hdu_mask=None, hdu_uncertainty=None, clobber=True)
+    CCDData.write(median, os.path.join(im_dir, 'MFlat.fit'), hdu_mask=None, hdu_uncertainty=None, clobber=True)
 
 
 def reduction_data(im_dir, exp_time, dark_exp, m_dark_name, 
-                   m_flat_name='!MFlat.fit', m_bias_name='!MBias.fit'):
+                   m_flat_name='MFlat.fit', m_bias_name='MBias.fit'):
 
     m_bias =  CCDData.read(m_bias_name, unit='adu')
     m_dark =  CCDData.read(m_dark_name, unit='adu')
@@ -135,8 +135,8 @@ def align_images(images, ref_im_num=0, save_dir=None, overwrite=True):
 
 #create_MasDark(im_dir, 60)
 #create_MasDark(im_dir, 5)        
-#create_MasFlat(im_dir, 5, '!MDark5.fit')  
+#create_MasFlat(im_dir, 5, 'MDark5.fit')  
 
-#reduction_data(im_dir, 60, 60, '!MDark60.fit')
-#reduction_data(im_dir, 5, 5, '!MDark5.fit')
+#reduction_data(im_dir, 60, 60, 'MDark60.fit')
+#reduction_data(im_dir, 5, 5, 'MDark5.fit')
 
