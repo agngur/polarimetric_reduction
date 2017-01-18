@@ -4,11 +4,12 @@ from stacks import create_coo_boxes, select_exp
 import glob
 import numpy as np
 from astropy.table import Table, Column, Row
-from astropy.io import ascii
+from astropy.io import ascii, fits
 import matplotlib.pyplot as plt
-from astropy.visualization import SqrtStretch
+from astropy.visualization import SqrtStretch, HistEqStretch, MinMaxInterval, ZScaleInterval
 from astropy.visualization.mpl_normalize import ImageNormalize
 from photutils.utils import random_cmap
+from photutils import CircularAperture
 
 
 def flux_measure(im, im_ref, **kwargs):
@@ -23,14 +24,19 @@ def flux_measure(im, im_ref, **kwargs):
                'ASSOC_DATA': '1,2,3',
                'ASSOC_TYPE': 'NEAREST',
                'ASSOCSELEC_TYPE': 'MATCHED'}
-
+    
     if kwargs:
         for name, value in kwargs.items():
+            if name in conf_args:
+                conf_args[name] = value
+            
+            """
             try:
                 conf_args[name] = value
             except KeyError:
                 print('Wrong key for flux measure: {}'.format(name))
-
+            """
+            
     cat = pysex.run(im, im_ref, keepcat=False, sex_command='sextractor',
                     rerun=True,
                     params=['X_IMAGE', 'Y_IMAGE', 'FLUX_BEST', 'FLUXERR_BEST'],
@@ -40,7 +46,33 @@ def flux_measure(im, im_ref, **kwargs):
 
 
 def make_plots(im_ref, table):
+
+    plot_name = im_ref.replace('P1_', '')
+    plot_name = plot_name.replace('.fit', '.png')
     
+    norm = ImageNormalize(stretch=SqrtStretch(), interval=ZScaleInterval())
+    fig, ax1 = plt.subplots(1, 1)
+    data = fits.getdata(im_ref)
+    data_mean, data_std = np.mean(data), np.std(data)
+    
+    #ax1.imshow(data, origin='lower', cmap='Greys_r', norm=norm)
+    ax1.imshow(data, interpolation='nearest', cmap='gray', vmin=data_mean-data_std,
+               vmax=data_mean+data_std, origin='lower')
+    
+    
+    for star in table:
+        ap = CircularAperture([star['X_IMAGE']-1, star['Y_IMAGE']-1], r=4.)
+        if star['PD'] < 5:
+            color = 'blue'
+        elif star['PD'] < 10:
+            color = 'yellow'
+        else:
+            color = 'red'
+        
+        ap.plot(color=color, lw=0.5, alpha=0.5, ax=ax1)
+    
+    fig.savefig(plot_name, dpi=300)
+    plt.close(fig)
 
 
 def save_PD_catalog(coo_cats, im_ref, visu=True):
@@ -68,7 +100,8 @@ def save_PD_catalog(coo_cats, im_ref, visu=True):
 def make_photometry(work_dir, files_ext='*.fit', ext='.fit',
                     filters=['P1', 'P2', 'P3','P4'],
                     exps=[5, 60],
-                    output_dir=None):
+                    output_dir=None, 
+                    **kwargs):
 
     if output_dir == None:
         output_dir = os.path.join(work_dir, 'output')
@@ -87,7 +120,7 @@ def make_photometry(work_dir, files_ext='*.fit', ext='.fit',
             else:
                 coo_cats = []
                 for im in coo_box:
-                    cat = flux_measure(im, im_ref)
+                    cat = flux_measure(im, im_ref, **kwargs)
                     coo_cats.append(cat)
 
                 save_PD_catalog(coo_cats, im_ref, visu=True) 
