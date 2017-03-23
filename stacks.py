@@ -103,10 +103,10 @@ def create_coo_boxes(pack, radius=4, unit='deg' , method='name'):
         brake
         
 
-def prepare_stack(main_dir, save_dir, start_date, end_date, files_ext='_red.fit',
+def prepare_stack(main_dir, save_dir, hdr_keys, start_date, end_date, files_ext='_red.fit',
                   ext='*red.fit', exps=[5, 60], 
                   filters=['P1', 'P2', 'P3', 'P4'], 
-                  radius=4, unit='deg', logs=True):
+                  radius=4, unit='deg', logs=True, astrometry=True):
     try:
         os.mkdir(save_dir)
     except FileExistsError:
@@ -131,14 +131,19 @@ def prepare_stack(main_dir, save_dir, start_date, end_date, files_ext='_red.fit'
                 for coo_box in coo_boxes:
                     stacked_images = []
                     for filter_name in filters:
+                        #print('raz', coo_box)
+                        #print('dwa', filter_name)
                         filter_pack = select_filter(coo_box, filter_name)
                         logging.info('Selected {:d} images with filter {}'.format(len(filter_pack), 
                                                                                   filter_name))
                         pim.align_images(filter_pack)
-                        print('tak', filter_pack)
+                        #print('tak', filter_pack)
                         logging.info('Pack align done')
-                        stacked_image = pim.make_stack(filter_pack, save_dir, exp, filter_name)
+                        stacked_image = pim.make_stack(filter_pack, save_dir,
+                                                       exp, filter_name, hdr_keys)
                         logging.info('Pack stack done')
                         stacked_images.append(stacked_image)
                     pim.align_images(stacked_images)
                     logging.info('Masters align done')
+                    if astrometry:
+                        pim.make_astrometry(stacked_images)

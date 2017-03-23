@@ -37,7 +37,7 @@ def flux_measure(im, im_ref, **kwargs):
                 print('Wrong key for flux measure: {}'.format(name))
             """
             
-    cat = pysex.run(im, im_ref, keepcat=False, sex_command='sextractor',
+    cat = pysex.run(im, im_ref, keepcat=False,
                     rerun=True,
                     params=['X_IMAGE', 'Y_IMAGE', 'FLUX_BEST', 'FLUXERR_BEST'],
                        conf_args=conf_args)
@@ -84,18 +84,33 @@ def save_PD_catalog(coo_cats, im_ref, visu=True):
     PD = np.sqrt(Q**2 + U**2) * 100
     
     table = Table(data=[coo_cats[0]['X_IMAGE'],
-                        coo_cats[0]['Y_IMAGE'],
-                        Q, U, PD],
+                        coo_cats[0]['Y_IMAGE'], Q, U, PD],
                   names=['X_IMAGE', 'Y_IMAGE', 'Q', 'U', 'PD'])
+    
+    table_coo = Table(data=[coo_cats[0]['FLUX_BEST'],
+                            coo_cats[0]['X_IMAGE'],
+                            coo_cats[0]['Y_IMAGE']], 
+                      names=['FLUX_BEST','#X_IMAGE', 'Y_IMAGE'])
     
     table.sort('PD')
     table_name = im_ref.replace('P1_', '')
     table_name = table_name.replace('.fit', '.cat')
     ascii.write(table, table_name, overwrite=True)
     
+    
+    table_coo.sort('FLUX_BEST')
+    table_coo.reverse()
+    table_coo.remove_column('FLUX_BEST')
+    table_name = im_ref.replace('P1_', '')
+    table_name = table_name.replace('.fit', '.astrometry')
+    
+    ascii.write(table_coo, table_name, overwrite=True)
+    
     if visu:
         make_plots(im_ref, table)
 
+        
+        
 
 def make_photometry(work_dir, files_ext='*.fit', ext='.fit',
                     filters=['P1', 'P2', 'P3','P4'],
