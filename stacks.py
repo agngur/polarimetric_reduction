@@ -105,11 +105,23 @@ def create_coo_boxes(pack, radius=4, unit='deg' , method='name'):
 
 def clean_unaligned(raw_aligned_filter_packs):
 
+    suffixes = []
     for i, pack in enumerate(raw_aligned_filter_packs):
+        suffixes.append('_'.join(pack[0].split('_')[4:]))
         raw_aligned_filter_packs[i] = set('_'.join(x.split('_')[:4]) for x in pack)
 
-    print(raw_aligned_filter_packs)
-    return set.intersection(*raw_aligned_filter_packs)
+
+    intersection = set.intersection(*raw_aligned_filter_packs)
+
+    aligned_filter_packs = []
+    for suffix in suffixes:
+        aligned_filter_packs.append(['_'.join((x, suffix)) for x in intersection])
+        print('######################3')
+        for i in aligned_filter_packs:
+            print(i)
+        print('######################3')
+
+    return aligned_filter_packs
 
 
 def prepare_stack(main_dir, save_dir, hdr_keys, start_date, end_date, files_ext='_red.fit',
@@ -130,7 +142,6 @@ def prepare_stack(main_dir, save_dir, hdr_keys, start_date, end_date, files_ext=
     container = create_im_list(main_dir, start_date, 
                                end_date, ext=ext)
     
-    raw_aligned_filter_packs = []
 
     for pack_date, pack in container:
         for exp in exps:
@@ -140,10 +151,9 @@ def prepare_stack(main_dir, save_dir, hdr_keys, start_date, end_date, files_ext=
                 coo_boxes = create_coo_boxes(selected_exp, radius, unit, method='name')
                 logging.info('Selected {:d} coo groups'.format(len(coo_boxes)))
                 for coo_box in coo_boxes:
+                    raw_aligned_filter_packs = []
                     stacked_images = []
                     for filter_name in filters:
-                        #print('raz', coo_box)
-                        #print('dwa', filter_name)
                         filter_pack = select_filter(coo_box, filter_name)
                         logging.info('Selected {:d} images with filter {}'.format(len(filter_pack), 
                                                                                   filter_name))
@@ -151,22 +161,16 @@ def prepare_stack(main_dir, save_dir, hdr_keys, start_date, end_date, files_ext=
                         raw_aligned_filter_packs.append(filter_pack)
                         logging.info('Pack align done')
     
-    aligned_filter_packs = clean_unaligned(raw_aligned_filter_packs)
-
-    print(aligned_filter_packs)
-    """  
-    #for filter_pack in aligned_filter_packs:
-
-                        
-
-                        #print('tak', filter_pack)
-                        
+                    aligned_filter_packs = clean_unaligned(raw_aligned_filter_packs)
+                    
+                    for filter_name, filter_pack in zip(filters, aligned_filter_packs):
                         stacked_image = pim.make_stack(filter_pack, save_dir,
-                                                       exp, filter_name, hdr_keys)
+                                                           exp, filter_name, hdr_keys)
                         logging.info('Pack stack done')
                         stacked_images.append(stacked_image)
+
                     pim.align_images(stacked_images)
                     logging.info('Masters align done')
+
                     if astrometry:
                         pim.make_astrometry(stacked_images)
-    """
