@@ -170,6 +170,7 @@ def align_images(images, ref_im_num=0, save_dir=None, overwrite=True):
         if id.ok == True: 
             print("{} : {}, flux ratio {}".format(id.ukn.name, id.trans, id.medfluxratio))
         else:
+            images.remove(id.ukn.filepath)
             print("{} : no transformation found !".format(id.ukn.name))
 
     outputshape = alipy.align.shape(ref_image)
@@ -179,7 +180,9 @@ def align_images(images, ref_im_num=0, save_dir=None, overwrite=True):
             alipy.align.affineremap(id.ukn.filepath, id.trans, shape=outputshape, makepng=False,
                                     overwrite=True)
 
+    return images            
             
+
 def make_astrometry(images):
     server = 'http://nova.astrometry.net/api/'
     apikey = 'abonxcbacdbfjbce'
