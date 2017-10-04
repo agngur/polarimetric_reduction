@@ -104,7 +104,7 @@ def create_coo_boxes(pack, radius=4, unit='deg' , method='name'):
         
 
 def prepare_stack(main_dir, save_dir, hdr_keys, start_date, end_date, files_ext='_red.fit',
-                  ext='*red.fit', exps=[5, 60], 
+                  ext='*red.fit', exps=[5], 
                   filters=['P1', 'P2', 'P3', 'P4'], 
                   radius=4, unit='deg', logs=True, astrometry=True):
     try:
