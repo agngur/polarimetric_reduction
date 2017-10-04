@@ -116,10 +116,6 @@ def clean_unaligned(raw_aligned_filter_packs):
     aligned_filter_packs = []
     for suffix in suffixes:
         aligned_filter_packs.append(['_'.join((x, suffix)) for x in intersection])
-        print('######################3')
-        for i in aligned_filter_packs:
-            print(i)
-        print('######################3')
 
     return aligned_filter_packs
 
@@ -162,7 +158,7 @@ def prepare_stack(main_dir, save_dir, hdr_keys, start_date, end_date, files_ext=
                         logging.info('Pack align done')
     
                     aligned_filter_packs = clean_unaligned(raw_aligned_filter_packs)
-                    
+
                     for filter_name, filter_pack in zip(filters, aligned_filter_packs):
                         stacked_image = pim.make_stack(filter_pack, save_dir,
                                                            exp, filter_name, hdr_keys)
