@@ -53,7 +53,7 @@ def affineremap(filepath, transform, shape, alifilepath=None,
         if not os.path.isdir(outdir):
             os.makedirs(outdir)
 
-    tofits(alifilepath, data, hdr=None, verbose=verbose)
+    tofits(alifilepath, data, hdr=hdr, verbose=verbose)
 
     if makepng:
         try:

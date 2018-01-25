@@ -200,7 +200,8 @@ def run(image='', imageref='', params=[], conf_file=None,
         return
 
     # Keeping the cat at a permanent location :
-    if keepcat and type(image) == type(''):
+    #print("KEEEP", keepcat, catpath)
+    if keepcat:
         shutil.copy('.pysex.cat', catpath)
 
     # Returning the cat :
