@@ -21,15 +21,15 @@ import ccdproc
 import time 
 
 #-----------------------------------------------------#
-# solve-filed param
-time_limit = 15  # time limit before giving up
-scale_low = 32  # arcsec
-scale_high = 34  # arcsec
-solve_radius = 1  # deg
+# solve_filed param
+time_limit = 15     # time limit before giving up
+scale_low = 32      # arcsec
+scale_high = 34     # arcsec
+solve_radius = 5    # deg
 #solve_depth = '40,80,100,160,250'
 
 # clear
-files_to_rm = ['*.axy', '*.corr', '*.xyls', '*.match', '*.rdls', '*.solved', '*.wcs']
+files_to_rm = ['*.axy', '*.corr', '*.xyls', '*.match', '*.rdls', '*.solved', '*.wcs', '*objs.png']
 
 #-----------------------------------------------------#
 
@@ -262,3 +262,5 @@ def clear():
 #reduction_data(im_dir, 5, 5, 'MDark5.fit')
 
 #solve_field(open_file(fits_file), fits_file)
+#fit_file = '/home/agngur/Dokumenty/survey/test/2017-06-09/stacked_fieldss/2457914_154312+853514_P1_5.fit'
+#solve_field(open_file(fit_file), fit_file)
