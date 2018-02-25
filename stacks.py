@@ -119,11 +119,11 @@ def clean_unaligned(raw_aligned_filter_packs):
     return aligned_filter_packs
 
 
-def prepare_stack(main_dir, save_dir, hdr_keys, start_date, end_date, files_ext='_red.fit',
+def prepare_stack(main_dir, save_dir, hdr_keys, standard_star, start_date, end_date, files_ext='_red.fit',
                   ext='*red.fit', exps=[5], 
                   filters=['P1', 'P2', 'P3', 'P4'], 
                   radius=4, unit='deg', logs=True):
-    print('hello')
+    print('Start align... Relax')
     try:
         os.mkdir(save_dir)
 
@@ -132,7 +132,7 @@ def prepare_stack(main_dir, save_dir, hdr_keys, start_date, end_date, files_ext=
     
     if logs:
         start_log(main_dir)
-        logging.info('PREPARE STACK START: '
+        logging.info('PREPARE ALIGN & STACK START: '
                      'main dir={}'
                      'save dir={}'.format(main_dir, save_dir))
         
@@ -159,13 +159,17 @@ def prepare_stack(main_dir, save_dir, hdr_keys, start_date, end_date, files_ext=
                         logging.info('Pack align done')
                         
                     aligned_filter_packs = clean_unaligned(raw_aligned_filter_packs)
-                    for filter_name, filter_pack in zip(filters, aligned_filter_packs):
-                        stacked_image = pim.make_stack(filter_pack, save_dir,
+                   
+                    if standard_star is False:
+                        for filter_name, filter_pack in zip(filters, aligned_filter_packs):
+                            stacked_image = pim.make_stack(filter_pack, save_dir,
                                                            exp, filter_name, hdr_keys)
-                        logging.info('Pack stack done')
-                        stacked_images.append(stacked_image)
+                            logging.info('Pack stack done')
+                            stacked_images.append(stacked_image)
 
-                    pim.align_images(stacked_images)
-                    logging.info('Masters align done')
-
+                        pim.align_images(stacked_images)
+                        logging.info('Masters align done')
+                    else:
+                        logging.info('Align done')
+                        
     
